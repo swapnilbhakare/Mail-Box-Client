@@ -9,7 +9,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { ToastContainer } from "react-toastify";
-import store  from "./Store/store";
+import store from "./Store/store";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(

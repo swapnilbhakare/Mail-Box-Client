@@ -3,11 +3,18 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-
+// react Boostrap config
+import { ToastContainer } from 'react-toastify';
+import '../node_modules/react-bootstrap/dist/react-bootstrap'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { BrowserRouter } from 'react-router-dom';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+ <BrowserRouter>
+ <ToastContainer />
+ <App />
+ </BrowserRouter>
   </React.StrictMode>
 );
 

@@ -5,13 +5,13 @@ import { Col, Form, Row, Button, FloatingLabel, Container } from "react-bootstra
 import { BiSolidLockAlt } from "react-icons/bi";
 import styleshhet from './Authentication.module.css'
 
-import { useNavigate } from "react-router-dom";
+
 import { useDispatch } from "react-redux";
 // AIzaSyBSRUpGLF7ibaidLOQigcjjDfdz-vXDTsU
 
  
 const Authentication = () => {
-  const navigate = useNavigate();
+ 
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
   const confirmPasswordInputRef = useRef();
@@ -53,6 +53,7 @@ const Authentication = () => {
           }
         }).then((data)=>{
           console.log(data)
+          console.log('signed up successfully')
         }).catch((err)=>{
           alert(err.message)
         })

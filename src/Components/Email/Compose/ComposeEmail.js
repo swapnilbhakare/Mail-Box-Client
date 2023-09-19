@@ -50,23 +50,24 @@ const ComposeEmail = (props) => {
     dispatch(setMessage(messageData));
   };
 
-  const email = useSelector((state) => state.authentication.userId);
- const emailId = email || ""
- const senderId =  emailId.replace(/[^a-zA-Z0-9]/g, "");
-
+  const userEmail = useSelector((state) => state.authentication.userId);
+  const emailId = userEmail || "";
+  const senderId = emailId.replace(/[^a-zA-Z0-9]/g, "");
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const currentDate = new Date().toLocaleString();
     const emailData = {
       to: compose.to,
       cc: compose.cc,
       bcc: compose.bcc,
       subject: compose.subject,
       message: compose.message,
-      sender: senderId,
+      sender: userEmail,
+      date:currentDate
     };
     try {
       const response = await fetch(
-        `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${senderId}.json`,
+        `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails${senderId}.json`,
         {
           method: "POST",
           headers: {

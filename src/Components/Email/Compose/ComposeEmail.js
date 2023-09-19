@@ -76,7 +76,7 @@ const ComposeEmail = (props) => {
           body: JSON.stringify(emailData),
         }
       );
-      console.log(response)
+     
 
       if (!response.ok) {
         throw new Error("Failed to send email.");

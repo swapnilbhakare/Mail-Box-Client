@@ -37,21 +37,17 @@ const ComposeEmail = (props) => {
         return EditorState.createWithContent(contentState);
       } catch (error) {
         console.error("Error parsing compose.message:", error);
-
-        return EditorState.createEmpty();
       }
-    } else {
-      return EditorState.createEmpty();
     }
+
+    return EditorState.createEmpty(); // Create an empty editor state if message is empty
   });
 
   const onEditorStateChange = (newEditorState) => {
+    console.log(newEditorState)
     setEditorState(newEditorState);
-
     const contentState = newEditorState.getCurrentContent();
-
     const messageData = JSON.stringify(convertToRaw(contentState));
-
     dispatch(setMessage(messageData));
   };
 
@@ -85,8 +81,8 @@ const ComposeEmail = (props) => {
       if (!response.ok) {
         throw new Error("Failed to send email.");
       }
-      console.log("Email sent and stored successfully.");
-      toast.success("'Email sent successfully'", {
+      console.log("Email sent successfully");
+      toast.success("Email sent successfully", {
         position: "top-right",
         autoClose: 2000,
         hideProgressBar: false,
@@ -107,7 +103,7 @@ const ComposeEmail = (props) => {
         progress: undefined,
       });
     }
-    props.setShow(false)
+    props.setShow(false);
     handleClose();
   };
 
@@ -208,13 +204,14 @@ const ComposeEmail = (props) => {
                 toolbarClassName={stylesheet["toolbar-class"]}
                 wrapperClassName={stylesheet["wrapper-class"]}
                 editorClassName={stylesheet["editor-class"]}
-                onEditorStateChange={setEditorState}
-                value={compose.message}
+                onEditorStateChange={onEditorStateChange}
               />
             </Form.Group>
 
             <Modal.Footer>
-              <Button type="submit" className="mt-3">Send</Button>
+              <Button type="submit" className="mt-3">
+                Send
+              </Button>
               <Button
                 className="mt-3   "
                 onClick={handleClose}

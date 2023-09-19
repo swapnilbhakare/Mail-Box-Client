@@ -9,16 +9,19 @@ import "react-toastify/dist/ReactToastify.css";
 const Inbox = () => {
   const [emails, setEmails] = useState([]);
   const [loading, setLoading] = useState(true);
-  const userEmail = useSelector((state) => state.authentication.userId);
-  console.log(userEmail)
+ 
+  const email = useSelector((state) => state.authentication.userId);
+  const emailId = email || ""
+  const senderId =  emailId.replace(/[^a-zA-Z0-9]/g, "");
+ 
   useEffect(() => {
     const fetchEmails = async () => {
       try {
-        if (userEmail) {
-          const fetchUrl =`https://mail-box-client-8848b-default-rtdb.asia-southeast1.firebasedatabase.app/emails.json?orderBy="to"&equalTo="${userEmail}"`;
+        if (senderId) {
+          const fetchUrl =`https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails.json?orderBy="to"&equalTo="${senderId}"`;
           const response = await fetch(fetchUrl);
           if (!response.ok) {
-            console.log(response.status)
+           
             throw new Error("Failed to fetch emails.");
           }
           const data = await response.json();
@@ -45,7 +48,7 @@ const Inbox = () => {
       }
     };
     fetchEmails();
-  }, [userEmail]);
+  }, [senderId]);
 
   return (
     <>

@@ -50,8 +50,9 @@ const ComposeEmail = (props) => {
     dispatch(setMessage(messageData));
   };
 
-  const senderId = useSelector((state) => state.authentication.userId);
- 
+  const email = useSelector((state) => state.authentication.userId);
+ const emailId = email || ""
+ const senderId =  emailId.replace(/[^a-zA-Z0-9]/g, "");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,7 +66,7 @@ const ComposeEmail = (props) => {
     };
     try {
       const response = await fetch(
-        "https://mail-box-client-8848b-default-rtdb.asia-southeast1.firebasedatabase.app/emails.json",
+        `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${senderId}.json`,
         {
           method: "POST",
           headers: {
@@ -74,6 +75,8 @@ const ComposeEmail = (props) => {
           body: JSON.stringify(emailData),
         }
       );
+      console.log(response)
+
       if (!response.ok) {
         throw new Error("Failed to send email.");
       }

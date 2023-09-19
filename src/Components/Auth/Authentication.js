@@ -52,10 +52,10 @@ const Authentication = () => {
     }
     if (isLogin) {
       url =
-        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBrbfVve4-n1c4EsKF-PjMgneQ5fP-ZqOE";
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAEQsJpek_gtmwzG7ZNxTabt8vGQxZ8t8w";
     } else {
       url =
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBrbfVve4-n1c4EsKF-PjMgneQ5fP-ZqOE";
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAEQsJpek_gtmwzG7ZNxTabt8vGQxZ8t8w";
     }
     try {
       const response = await fetch(url, {
@@ -69,6 +69,7 @@ const Authentication = () => {
           "Content-Type": "application/json",
         },
       });
+      console.log(response)
       if (response.ok) {
         const data = await response.json();
         const idToken = data.idToken;

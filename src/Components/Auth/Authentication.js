@@ -87,6 +87,7 @@ const Authentication = () => {
 
           navigate("/home");
         } else {
+          navigate("/home");
           // navigate("/verification");
           toast.success("User has successfully signed up", {
             position: "top-right",

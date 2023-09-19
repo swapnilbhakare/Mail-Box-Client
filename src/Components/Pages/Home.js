@@ -1,9 +1,21 @@
-import React from 'react'
-
+import React ,{useState}from "react";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import stylesheet from "./Home.module.css";
+import ComposeEmail from "../Email/ComposeEmail";
+import { Button } from "react-bootstrap";
 const Home = () => {
-  return (
-    <div>Welcome to your mail box</div>
-  )
-}
+  const [show,setShow]= useState(false)
+  const handleComposeButton=()=>{
+    setShow(true)
 
-export default Home
+  }
+  return (
+
+    <>
+    <ComposeEmail show={show} setShow={setShow}/> 
+     <Button onClick={handleComposeButton}>Compose</Button>
+    </>
+  );
+};
+
+export default Home;

@@ -14,7 +14,7 @@ import styleshhet from "./Authentication.module.css";
 import { useNavigate } from "react-router-dom";
 import { login } from "../../Store/auth-slice";
 import { useDispatch } from "react-redux";
-// AIzaSyBSRUpGLF7ibaidLOQigcjjDfdz-vXDTsU
+// AIzaSyBrbfVve4-n1c4EsKF-PjMgneQ5fP-ZqOE
 
 const Authentication = () => {
   const navigate = useNavigate();
@@ -52,10 +52,10 @@ const Authentication = () => {
     }
     if (isLogin) {
       url =
-        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBSRUpGLF7ibaidLOQigcjjDfdz-vXDTsU";
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBrbfVve4-n1c4EsKF-PjMgneQ5fP-ZqOE";
     } else {
       url =
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBSRUpGLF7ibaidLOQigcjjDfdz-vXDTsU";
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBrbfVve4-n1c4EsKF-PjMgneQ5fP-ZqOE";
     }
     try {
       const response = await fetch(url, {

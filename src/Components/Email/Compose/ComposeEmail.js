@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import authSlice from "../../Store/auth-slice";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -11,7 +10,7 @@ import {
   setSubject,
   setMessage,
   resetCompose,
-} from "../../Store/compose-slice";
+} from "../../../Store/compose-slice";
 
 import { Editor } from "react-draft-wysiwyg";
 import { EditorState, convertFromRaw, convertToRaw } from "draft-js";
@@ -51,11 +50,8 @@ const ComposeEmail = (props) => {
     dispatch(setMessage(messageData));
   };
 
-  const userEmail = useSelector((state) => state.authentication.userId);
-  const emailId = userEmail || "";
-  const senderId = emailId.replace(/[^a-zA-Z0-9]/g, "");
-
-  console.log(senderId);
+  const senderId = useSelector((state) => state.authentication.userId);
+ 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,7 +65,7 @@ const ComposeEmail = (props) => {
     };
     try {
       const response = await fetch(
-        "https://mail-box-client-e2be5-default-rtdb.firebaseio.com/send-email.json",
+        "https://mail-box-client-8848b-default-rtdb.asia-southeast1.firebasedatabase.app/emails.json",
         {
           method: "POST",
           headers: {

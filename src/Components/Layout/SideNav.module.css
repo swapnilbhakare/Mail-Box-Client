@@ -1,0 +1,9 @@
+.compose-btn{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 15px 20px !important;
+    margin: 0 20px;
+    cursor: pointer;
+
+}

@@ -97,7 +97,6 @@ const ComposeEmail = (props) => {
       });
     } catch (error) {
       console.error("Error sending email:", error);
-
       toast.error("Failed to send email. Please try again later.", {
         position: "top-right",
         autoClose: 2000,

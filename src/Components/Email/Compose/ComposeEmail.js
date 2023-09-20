@@ -43,7 +43,7 @@ const ComposeEmail = (props) => {
   });
 
   const onEditorStateChange = (newEditorState) => {
-    console.log(newEditorState)
+  
     setEditorState(newEditorState);
     const contentState = newEditorState.getCurrentContent();
     const messageData = JSON.stringify(convertToRaw(contentState));
@@ -67,7 +67,7 @@ const ComposeEmail = (props) => {
     };
     try {
       const response = await fetch(
-        `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails${senderId}.json`,
+        `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${senderId}.json`,
         {
           method: "POST",
           headers: {

@@ -1,49 +1,42 @@
-import React from "react";
-import { useEffect } from "react";
-import { Container, Card, Row, Col, ListGroup } from "react-bootstrap";
+import React, { useEffect } from "react";
+
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEmails } from "../../../Store/emails-slice";
+import { ListGroup,Row,Col, Container } from "react-bootstrap";
 
 const Inbox = () => {
   const dispatch = useDispatch();
   const emails = useSelector((state) => state.emails.emails);
   const loading = useSelector((state) => state.emails.loading);
+  const error = useSelector((state) => state.emails.error);
+  const recipientEmail = useSelector((state) => state.authentication.userId);
 
-
-  const userEmail = useSelector((state) => state.authentication.userId);
-  const emailId = userEmail || "";
-  const senderId = emailId.replace(/[^a-zA-Z0-9]/g, "");
-
- 
   useEffect(() => {
+    dispatch(fetchEmails(recipientEmail));
+  }, [dispatch, recipientEmail]);
 
-  
-    dispatch(fetchEmails(senderId));
-  }, [dispatch]);
- 
+  if (loading) {
+    return <p>Loading emails</p>;
+  }
 
   return (
     <>
-      <h2>Inbox</h2>
-      {
-        loading?<p>Loading..</p>:(
-          <ListGroup>
+      <Container>
+        <h2>Inbox</h2>
+        <ListGroup>
           {emails.map((email) => (
             <ListGroup.Item key={email.id}>
               <Row>
-                <Col xs={4}>{email.data.sender}</Col>
-                <Col xs={4}>{email.data.subject}</Col>
-                <Col xs={4} className="text-end">
-                  {email.data.date}
-                </Col>
+                <Col>{email.data.sender}</Col>
+                <Col>{email.data.subject}</Col>
+                <Col>{email.data.date}</Col>
+
+
               </Row>
             </ListGroup.Item>
           ))}
         </ListGroup>
-
-        )
-      }
-     
+      </Container>
     </>
   );
 };

@@ -3,14 +3,11 @@ import { create } from "draft-js/lib/CharacterMetadata";
 
 const initialState = {
   to: "",
-
   cc: "",
-
   bcc: "",
-
   subject: "",
-
   message: "",
+  date:"",
 };
 
 const composeSlice = createSlice({

@@ -63,7 +63,8 @@ const ComposeEmail = (props) => {
       subject: compose.subject,
       message: compose.message,
       sender: userEmail,
-      date:currentDate
+      date:currentDate,
+      isRead:false
     };
     try {
       const response = await fetch(

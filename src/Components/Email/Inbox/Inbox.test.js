@@ -106,7 +106,7 @@ describe("Inbox Component", () => {
 
     // Assert that the fetchEmails action is called with the expected argument
   
-    expect(store.dispatch).toHaveBeenCalled(fetchEmails("user@example.com"));
+    expect(store.dispatch).toHaveBeenCalledWith(fetchEmails("user@example.com"));
   
   });
 

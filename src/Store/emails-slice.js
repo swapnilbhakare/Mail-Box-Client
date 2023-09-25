@@ -1,9 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { act } from "react-dom/test-utils";
 
 export const markEmailAsRead = (emailId) => {
   return {
-    type: "MARK_eMAIL_AS_READ",
+    type: "MARK_EMAIL_AS_READ",
     payload: emailId,
   };
 };
@@ -57,10 +56,13 @@ const emailsSlice = createSlice({
   },
 
   reducers: {
+
     setSelectedEmail: (state, action) => {
-      console.log(state)
+      console.log("Reducer Payload:", action.payload); // Add this line to confirm payload
       state.selectedEmail = action.payload;
+  
     },
+  
   },
 
   extraReducers: (builder) => {

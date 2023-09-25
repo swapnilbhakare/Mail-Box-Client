@@ -1,15 +1,14 @@
-
 import React from "react";
 
 import { useSelector } from "react-redux";
 
 const MessageDetail = () => {
-
   const selectedEmail = useSelector((state) => state.emails.selectedEmail);
+
   if (!selectedEmail) {
     return <p>Select an email to view details.</p>;
   }
-  console.log(selectedEmail)
+  
 
   return (
     <>

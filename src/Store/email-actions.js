@@ -49,16 +49,10 @@ export const markEmailAsRead = (emailId) => {
   return async (dispatch, getState) => {
     const state = getState();
     const userEmail = state.authentication.userId;
-
-    // Debugging: Log important information
-    console.log("userEmail:", userEmail);
-    console.log("emailId:", emailId);
+    console.log("Marking email as read. Email ID:", emailId);
 
     try {
       const apiURL = `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${userEmail}/${emailId}.json`;
-
-      // Debugging: Log the constructed URL
-      console.log("apiURL:", apiURL);
 
       await axios.put(apiURL, { userEmail, emailId, read: true });
       console.log("Email marked as read successfully.");

@@ -43,7 +43,6 @@ const Inbox = () => {
     history.push(`/email/${email.id}`); // Navigate to MessageDetail
   };
 
-  // Add this effect to clear the selected email when leaving the MessageDetail
   useEffect(() => {
     return () => {
       dispatch(setSelectedEmail(null)); // Clear the selected email when unmounting

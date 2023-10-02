@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { create } from "draft-js/lib/CharacterMetadata";
 
 const initialState = {
   to: "",
@@ -7,7 +6,7 @@ const initialState = {
   bcc: "",
   subject: "",
   message: "",
-  date:"",
+  date: "",
 };
 
 const composeSlice = createSlice({

@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import axios from "axios";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import {
   setTo,
@@ -17,6 +18,7 @@ import { EditorState, convertFromRaw, convertToRaw } from "draft-js";
 import { Button, Form, Row, Col, Modal, InputGroup } from "react-bootstrap";
 import stylesheet from "./ComposeEmail.module.css";
 import { useDispatch, useSelector } from "react-redux";
+
 const ComposeEmail = (props) => {
   const dispatch = useDispatch();
   const compose = useSelector((state) => state.compose);
@@ -28,31 +30,43 @@ const ComposeEmail = (props) => {
     dispatch(resetCompose());
   };
 
-  const [editorState, setEditorState] = useState(() => {
+  const [editorState, setEditorState] = useState(EditorState.createEmpty());
+
+  useEffect(() => {
     if (compose.message) {
       try {
-        const contentState = convertFromRaw(JSON.parse(compose.message));
-
-        return EditorState.createWithContent(contentState);
+        const parsedMessage = JSON.parse(compose.message);
+        if (typeof parsedMessage === "object" && parsedMessage !== null) {
+          const contentState = convertFromRaw(parsedMessage);
+          const editorState = EditorState.createWithContent(contentState);
+          setEditorState(editorState);
+        } else {
+          console.error("Invalid JSON:", compose.message);
+        }
       } catch (error) {
         console.error("Error parsing compose.message:", error);
+        console.error("Invalid JSON:", compose.message);
       }
+    } else {
+      // Handle the case when compose.message is null or undefined
+      console.error("compose.message is null or undefined");
     }
-
-    return EditorState.createEmpty(); // Create an empty editor state if message is empty
-  });
+  }, [compose.message]);
 
   const onEditorStateChange = (newEditorState) => {
-  
-    setEditorState(newEditorState);
     const contentState = newEditorState.getCurrentContent();
-    const messageData = JSON.stringify(convertToRaw(contentState));
-    dispatch(setMessage(messageData));
+    const messageText = convertToRaw(contentState)
+      .blocks.map((block) => block.text)
+      .join("\n"); // Join text with line breaks
+    setEditorState(newEditorState);
+    dispatch(setMessage(messageText));
   };
 
   const userEmail = useSelector((state) => state.authentication.userId);
+
   const emailId = userEmail || "";
   const senderId = emailId.replace(/[^a-zA-Z0-9]/g, "");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const currentDate = new Date().toLocaleString();
@@ -63,35 +77,31 @@ const ComposeEmail = (props) => {
       subject: compose.subject,
       message: compose.message,
       sender: userEmail,
-      date:currentDate,
-      isRead:false
+      date: currentDate,
+      read: false,
     };
-    try {
-      const response = await fetch(
-        `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${senderId}.json`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(emailData),
-        }
-      );
-     
 
-      if (!response.ok) {
+    try {
+      // Make a POST request to your server with email data
+      const response = await axios.post(
+        `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${senderId}.json`,
+        emailData
+      );
+
+      if (response.status === 200) {
+        console.log("Email sent successfully");
+        toast.success("Email sent successfully", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: true,
+          progress: undefined,
+        });
+      } else {
         throw new Error("Failed to send email.");
       }
-      console.log("Email sent successfully");
-      toast.success("Email sent successfully", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-      });
     } catch (error) {
       console.error("Error sending email:", error);
       toast.error("Failed to send email. Please try again later.", {
@@ -111,7 +121,7 @@ const ComposeEmail = (props) => {
   return (
     <>
       {/* compose Modal */}
-      <Modal fullscreen show={props.show} onHide={() => props.setShow(false)}>
+      <Modal show={props.show} onHide={() => props.setShow(false)}>
         <Modal.Header closeButton>
           <Modal.Title>New Message</Modal.Title>
         </Modal.Header>
@@ -202,10 +212,11 @@ const ComposeEmail = (props) => {
             <Form.Group>
               <Editor
                 editorState={editorState}
-                toolbarClassName={stylesheet["toolbar-class"]}
-                wrapperClassName={stylesheet["wrapper-class"]}
+                toolbarClassName={stylesheet["editor-toolbar"]} // Apply custom toolbar styles
+                wrapperClassName={stylesheet["wrapper-class"]} // Add your wrapper class here
                 editorClassName={stylesheet["editor-class"]}
                 onEditorStateChange={onEditorStateChange}
+                // value={compose.message}
               />
             </Form.Group>
 

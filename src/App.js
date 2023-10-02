@@ -1,37 +1,41 @@
-import "./App.css";
-import { useState } from "react";
-import Authentication from "./Components/Auth/Authentication";
-import { Route, Routes } from "react-router-dom";
-import Home from "./Components/Pages/Home";
+import React from "react";
+import { Route, Switch } from "react-router-dom"; // Import BrowserRouter
 import { useSelector } from "react-redux";
-import Inbox from "./Components/Email/Inbox/Inbox";
-import Header from "./Components/Layout/Header";
-import SideNav from "./Components/Layout/SideNav";
-import ComposeEmail from "./Components/Email/Compose/ComposeEmail";
+import "./App.css";
+import Inbox from "./Components/Pages/Inbox/Inbox";
+import Layout from "./Components/Layout/Layout";
+import MessageDetail from "./Components/Pages/Inbox/MessageDetail";
+import Authentication from "./Components/Auth/Authentication";
+import Sent from "./Components/Pages/sent/sent";
 function App() {
   const isLoggedIn = useSelector((state) => state.authentication.isLoggedIn);
-  const [show, setShow] = useState(false);
-  const handleComposeButton = () => {
-    setShow(true);
-  };
 
   return (
     <div className="App">
-      {isLoggedIn && (
-        <>
-          <SideNav compose={handleComposeButton} />
-          <ComposeEmail show={show} setShow={setShow} />
-        </>
-      )}
-      <Routes>
-        <Route path="/" element={<Authentication />} />
+      <Switch>
+        <Route path="/" exact>
+          <Authentication />
+        </Route>
         {isLoggedIn && (
           <>
-            <Route path="/inbox" element={<Inbox />} />
-            <Route path="/home" element={<Home />} />
+            <Route path="/sent">
+              <Layout isLoggedIn={isLoggedIn}>
+                <Sent />
+              </Layout>
+            </Route>
+            <Route path="/inbox">
+              <Layout isLoggedIn={isLoggedIn}>
+                <Inbox />
+              </Layout>
+            </Route>
+            <Route path="/email/:id">
+              <Layout isLoggedIn={isLoggedIn}>
+                <MessageDetail />
+              </Layout>
+            </Route>
           </>
         )}
-      </Routes>
+      </Switch>
     </div>
   );
 }

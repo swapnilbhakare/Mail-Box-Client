@@ -1,11 +1,10 @@
-.toolbar-class {
-    border: 1px solid whitesmoke;
+
+.editor-toolbar {
+background-color: whitesmoke;
+
+
+}
+.wrapper-class-ltr {
+    direction: ltr;
   }
-  .wrapper-class{
- 
-  border: 1px solid whitesmoke;
-  }.editor-class {
-    background-color: whitesmoke;
-   height: 300px;
-    border: 1px solid whitesmoke;
-  }
+  

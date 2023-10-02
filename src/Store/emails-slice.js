@@ -1,50 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-
-export const markEmailAsRead = (emailId) => {
-  return {
-    type: "MARK_EMAIL_AS_READ",
-    payload: emailId,
-  };
-};
-
-export const fetchEmails = createAsyncThunk(
-  "emails/fetchEmails",
-  async (email) => {
-    const userEmail = email;
-    const emailId = userEmail || "";
-    const recipientEmail = emailId.replace(/[^a-zA-Z0-9]/g, "");
-    try {
-      const apiURL = `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${recipientEmail}.json`;
-      const response = await fetch(apiURL);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch emails.");
-      }
-
-      const data = await response.json();
-
-      // If data is structured differently, adjust the mapping accordingly
-
-      const emailsWithIds = Object.keys(data).map((emailId) => ({
-        id: emailId,
-
-        data: data[emailId],
-      }));
-
-      return emailsWithIds;
-    } catch (error) {
-      throw error;
-    }
-  }
-);
-
-export const setSelectedEmail = (email) => {
- 
-  return {
-    type: "SET_SELECT_EMAIL",
-    payload: email,
-  };
-};
+import { createSlice } from "@reduxjs/toolkit";
 
 const emailsSlice = createSlice({
   name: "emails",
@@ -53,39 +7,56 @@ const emailsSlice = createSlice({
     loading: false,
     error: null,
     selectedEmail: null,
+    unreadEmailCount: 0,
   },
 
   reducers: {
-
     setSelectedEmail: (state, action) => {
-      console.log("Reducer Payload:", action.payload); // Add this line to confirm payload
       state.selectedEmail = action.payload;
-  
     },
-  
-  },
+    emailsLoading: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    emailsLoaded: (state, action) => {
+      state.loading = false;
+      state.emails = action.payload;
+      // Recalculate the unread email count based on read status
+      state.unreadEmailCount = state.emails.filter(
+        (email) => !email.data.read
+      ).length;
+    },
 
-  extraReducers: (builder) => {
-    builder
+    emailsLoadError: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    markEmailAsRead: (state, action) => {
+      const emailIdToMarkAsRead = action.payload;
+      // Find the email to mark as read by its ID
+      const emailToMarkAsRead = state.emails.find(
+        (email) => email.id === emailIdToMarkAsRead
+      );
 
-      .addCase(fetchEmails.pending, (state) => {
-        state.loading = true;
+      if (emailToMarkAsRead) {
+        // Update the read status of the email to true
+        emailToMarkAsRead.data.read = true;
+      }
 
-        state.error = null;
-      })
-
-      .addCase(fetchEmails.fulfilled, (state, action) => {
-        state.loading = false;
-
-        state.emails = action.payload;
-      })
-
-      .addCase(fetchEmails.rejected, (state, action) => {
-        state.loading = false;
-
-        state.error = action.error.message;
-      });
+      // Recalculate the unread email count
+      state.unreadEmailCount = state.emails.filter(
+        (email) => !email.data.read
+      ).length;
+    },
   },
 });
+
+export const {
+  setSelectedEmail,
+  emailsLoading,
+  emailsLoaded,
+  emailsLoadError,
+  markEmailAsRead,
+} = emailsSlice.actions;
 
 export default emailsSlice.reducer;

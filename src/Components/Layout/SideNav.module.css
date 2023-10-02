@@ -1,9 +1,27 @@
 .compose-btn{
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
     padding: 15px 20px !important;
-   
     cursor: pointer;
 
 }
+.nav a{
+    color:#000 ;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+}
+.nav a span{
+    color: #000;
+    
+}
+
+.nav a.active-link {
+    background-color: tomato; 
+    color: white; /* Change the text color for active links */
+    border-radius: 5px; /* Add rounded corners to active links */
+    padding: 8px 16px; /* Adjust padding for active links */
+    text-decoration: none; /* Remove underlines from active links */
+  }

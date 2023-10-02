@@ -11,13 +11,13 @@ import {
 } from "react-bootstrap";
 import { BiSolidLockAlt } from "react-icons/bi";
 import styleshhet from "./Authentication.module.css";
-import { useNavigate } from "react-router-dom";
-import { login } from "../../Store/auth-slice";
+import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-// AIzaSyBrbfVve4-n1c4EsKF-PjMgneQ5fP-ZqOE
+import { login } from "../../Store/auth-slice";
+import axios from "axios"; // Import Axios
 
 const Authentication = () => {
-  const navigate = useNavigate();
+  const history = useHistory();
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
   const confirmPasswordInputRef = useRef();
@@ -30,159 +30,86 @@ const Authentication = () => {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    const enterdEmail = emailInputRef.current.value;
-    const enterdPassword = passwordInputRef.current.value;
-    const enterdConfirmPassword = !isLogin
+    const enteredEmail = emailInputRef.current.value;
+    const enteredPassword = passwordInputRef.current.value;
+    const enteredConfirmPassword = !isLogin
       ? confirmPasswordInputRef.current.value
       : null;
 
-    let url;
-    if (!isLogin && enterdPassword !== enterdConfirmPassword) {
-      toast.error("Passwords did not match", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-      });
-
+    if (!isLogin && enteredPassword !== enteredConfirmPassword) {
+      toast.error("Passwords do not match");
       return;
     }
-    if (isLogin) {
-      url =
-        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAEQsJpek_gtmwzG7ZNxTabt8vGQxZ8t8w";
-    } else {
-      url =
-        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAEQsJpek_gtmwzG7ZNxTabt8vGQxZ8t8w";
-    }
+
+    const authData = {
+      email: enteredEmail,
+      password: enteredPassword,
+      returnSecureToken: true,
+    };
+
+    // Define the Firebase API endpoint URLs
+    const signInUrl =
+      "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAEQsJpek_gtmwzG7ZNxTabt8vGQxZ8t8w";
+    const signUpUrl =
+      "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAEQsJpek_gtmwzG7ZNxTabt8vGQxZ8t8w";
+
+    // Use the appropriate URL based on the authentication mode
+    const url = isLogin ? signInUrl : signUpUrl;
+
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        body: JSON.stringify({
-          email: enterdEmail,
-          password: enterdPassword,
-          returnSecureToken: true,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      console.log(response)
-      if (response.ok) {
-        const data = await response.json();
+      const response = await axios.post(url, authData);
+
+      if (response.status === 200) {
+        const data = response.data;
         const idToken = data.idToken;
         const userId = data.email;
         dispatch(login({ idToken, userId }));
-        if (isLogin) {
-          toast.success("User has successfully signed in", {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: false,
-            draggable: true,
-            progress: undefined,
-          });
 
-          navigate("/home");
-        } else {
-          navigate("/home");
-          // navigate("/verification");
-          toast.success("User has successfully signed up", {
-            position: "top-right",
-            autoClose: 2000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: false,
-            draggable: true,
-            progress: undefined,
-          });
-        }
-        if (!isLogin) {
-          confirmPasswordInputRef.current.value = "";
-        }
-        emailInputRef.current.value = "";
-        passwordInputRef.current.value = "";
+        toast.success(
+          isLogin
+            ? "User has successfully signed in"
+            : "User has successfully signed up"
+        );
+
+        // Redirect the user to the desired page
+        history.replace("/inbox");
       } else {
-        const data = await response.json();
+        const errorData = response.data.error;
+        let errorMessage = "Authentication failed.";
+
         if (isLogin) {
-          if (data.error.message === "EMAIL_NOT_FOUND") {
-            toast.error("User not found.", {
-              position: "top-right",
-              autoClose: 2000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: false,
-              draggable: true,
-              progress: undefined,
-            });
-          } else if (data.error.message === "INVALID_PASSWORD") {
-            toast.error("Invalid password.", {
-              position: "top-right",
-              autoClose: 2000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: false,
-              draggable: true,
-              progress: undefined,
-            });
-          } else {
-            toast.error("Login Failed!", {
-              position: "top-right",
-              autoClose: 2000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: false,
-              draggable: true,
-              progress: undefined,
-            });
+          if (errorData.message === "EMAIL_NOT_FOUND") {
+            errorMessage = "User not found.";
+          } else if (errorData.message === "INVALID_PASSWORD") {
+            errorMessage = "Invalid password.";
           }
         } else {
-          if (data.error.message === "EMAIL_EXISTS") {
-            toast.error("User already exists.", {
-              position: "top-right",
-              autoClose: 2000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: false,
-              draggable: true,
-              progress: undefined,
-            });
-          } else {
-            toast.error("Sign-up Failed!", {
-              position: "top-right",
-              autoClose: 2000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: false,
-              draggable: true,
-              progress: undefined,
-            });
+          if (errorData.message === "EMAIL_EXISTS") {
+            errorMessage = "User already exists.";
           }
         }
+
+        toast.error(errorMessage);
+      }
+
+      // Clear input fields
+      emailInputRef.current.value = "";
+      passwordInputRef.current.value = "";
+      if (!isLogin) {
+        confirmPasswordInputRef.current.value = "";
       }
     } catch (error) {
       console.error(error);
-      toast.error("An error occurred. Please try again later.", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-      });
+      toast.error("An error occurred. Please try again later.");
     }
   };
 
   return (
-    <Container>
+    <Container style={{ width: "400px", textAlign: "center" }}>
       <Form onSubmit={submitHandler}>
         <Row
           className="d-flex p-3  flex-column shadow align-items-center mx-auto mt-5"
-          style={{ width: "400px" }}
+          style={{ width: "400px", textAlign: "center" }}
         >
           <Col>
             <h2 className="p-1 mb-3 center">
@@ -250,10 +177,6 @@ const Authentication = () => {
                 {isLogin ? "Log In" : "Create an Account"}
               </Button>
             </Form.Group>
-
-            {/* <Form.Group as={Col}>
-            <Button> Forget Password ?</Button>
-          </Form.Group> */}
           </Col>
         </Row>
       </Form>

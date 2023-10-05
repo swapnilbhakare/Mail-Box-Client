@@ -1,0 +1,24 @@
+.delete-btn{
+    background-color: transparent !important;
+    border:none !important;
+    color: #f70c0c !important;
+    font-size: 1.4rem !important;
+}
+.delete-btn:hover{
+    color: #e90303 !important;
+  
+}
+.emails{
+display: flex;
+align-items: center;
+justify-content: space-between;
+flex-direction: row;
+
+}
+.email{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    color: #000;
+}

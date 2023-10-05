@@ -1,10 +1,5 @@
 import axios from "axios";
-import {
-  emailsLoaded,
-  emailsLoadError,
-  markEmailAsRead as markEmailAsReadAction,
-} from "./emails-slice"; // Import the markEmailAsRead action
-
+import { emailsLoaded, emailsLoadError, markEmailAsRead } from "./emails-slice";
 // Function to fetch emails
 export const fetchEmails = (email) => {
   return async (dispatch) => {
@@ -15,10 +10,10 @@ export const fetchEmails = (email) => {
       }
 
       const recipientEmail = email.replace(/[^a-zA-Z0-9]/g, ""); // Sanitize email
-      const apiURL = `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${recipientEmail}.json`;
+      const apiEndpoint = `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${recipientEmail}.json`;
 
       // Make a GET request to fetch emails
-      const response = await axios.get(apiURL);
+      const response = await axios.get(apiEndpoint);
 
       if (response.status !== 200) {
         throw new Error("Failed to fetch emails.");
@@ -29,7 +24,7 @@ export const fetchEmails = (email) => {
       // Map the emails to include the read status
       const emailsWithIds = Object.keys(data).map((emailId) => ({
         id: emailId,
-        data: { ...data[emailId], read: false }, // Initialize read status as false
+        data: { ...data[emailId] },
       }));
 
       // Dispatch the success action with the fetched emails
@@ -45,19 +40,55 @@ export const fetchEmails = (email) => {
 };
 
 // Function to mark an email as read
-export const markEmailAsRead = (emailId) => {
+export const markEmailAsReadAction = (emailId) => {
   return async (dispatch, getState) => {
-    const state = getState();
-    const userEmail = state.authentication.userId;
-    console.log("Marking email as read. Email ID:", emailId);
-
     try {
-      const apiURL = `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${userEmail}/${emailId}.json`;
+      if (!emailId) {
+        throw new Error("Email is undefined or empty.");
+      }
+      const state = getState();
+      const userEmail = state.authentication.userId;
+      const recipientEmail = emailId.replace(/[^a-zA-Z0-9]/g, ""); // Sanitize email
 
-      await axios.put(apiURL, { userEmail, emailId, read: true });
-      console.log("Email marked as read successfully.");
-      dispatch(markEmailAsReadAction(emailId));
+      console.log(userEmail);
+      const apiEndpoint = `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${recipientEmail}/${emailId}.json`;
+
+      // Attempt to mark the email as read
+      const response = await axios.put(apiEndpoint, {
+        userEmail,
+        emailId,
+        read: true,
+      });
+
+      if (response.status === 200) {
+        console.log("Email marked as read successfully.");
+        dispatch(markEmailAsRead(emailId));
+      } else {
+        console.error("Failed to mark the email as read.");
+      }
     } catch (error) {
+      console.error("Error marking the email as read:", error);
+      throw error;
+    }
+  };
+};
+export const deleteEmailAction = (emailId, emails) => {
+  return async (dispatch, getState) => {
+    try {
+      const state = getState();
+      const userEmail = state.authentication.userId;
+      const recipientEmail = userEmail.replace(/[^a-zA-Z0-9]/g, ""); // Sanitize email
+
+      const apiEndpoint = `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${recipientEmail}/${emailId}.json`;
+      const response = await axios.delete(apiEndpoint);
+      if (response.status === 200) {
+        const updatedEmails = emails.filter((email) => email.id !== emailId);
+        dispatch({ type: "DELETE_EMAIL", payload: updatedEmails });
+      } else {
+        throw new Error(`Failed to delete the email. Status: ${response}`);
+      }
+    } catch (error) {
+      dispatch(emailsLoadError(error.message));
       throw error;
     }
   };

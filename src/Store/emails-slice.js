@@ -31,6 +31,7 @@ const emailsSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+
     markEmailAsRead: (state, action) => {
       const emailIdToMarkAsRead = action.payload;
       // Find the email to mark as read by its ID
@@ -42,11 +43,16 @@ const emailsSlice = createSlice({
         // Update the read status of the email to true
         emailToMarkAsRead.data.read = true;
       }
-
       // Recalculate the unread email count
       state.unreadEmailCount = state.emails.filter(
         (email) => !email.data.read
       ).length;
+    },
+    deleteEmail: (state, action) => {
+      const emailIdToDelete = action.payload;
+      state.emails = state.emails.filter(
+        (email) => email.id !== emailIdToDelete
+      );
     },
   },
 });
@@ -57,6 +63,7 @@ export const {
   emailsLoaded,
   emailsLoadError,
   markEmailAsRead,
+  deleteEmail,
 } = emailsSlice.actions;
 
 export default emailsSlice.reducer;

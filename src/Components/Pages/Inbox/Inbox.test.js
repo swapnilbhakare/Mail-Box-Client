@@ -1,10 +1,10 @@
 import React from "react";
-import { screen, render } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
 import Inbox from "./Inbox";
-import { fetchEmails } from "../../../Store/emails-slice";
+import { fetchEmails, deleteEmail } from "../../../Store/emails-slice";
+import axios from "axios";
 
 const mockStore = configureStore([]);
 
@@ -12,8 +12,7 @@ describe("Inbox Component", () => {
   let store;
 
   beforeEach(() => {
-    // Initial state for the Redux store
-    const initialState = {
+    store = mockStore({
       emails: {
         emails: [
           {
@@ -22,7 +21,7 @@ describe("Inbox Component", () => {
               sender: "John Doe",
               subject: "Hello",
               date: "2023-09-06",
-              read: true, // Marked as read
+              read: true,
             },
           },
           // Add more mock emails as needed
@@ -33,12 +32,15 @@ describe("Inbox Component", () => {
       authentication: {
         userId: "user@example.com",
       },
-    };
+    });
 
-    store = mockStore(initialState);
-
-    // Mock the fetchEmails action
-    store.dispatch = jest.fn();
+    // Mock the axios.get function
+    axios.get = jest.fn(() =>
+      Promise.resolve({
+        status: 200,
+        data: {},
+      })
+    );
   });
 
   it("renders the Inbox component", () => {
@@ -53,7 +55,6 @@ describe("Inbox Component", () => {
   });
 
   it("displays loading message when loading emails", () => {
-    // Modify the Redux store state for the loading scenario
     store = mockStore({
       emails: {
         emails: [],
@@ -98,9 +99,8 @@ describe("Inbox Component", () => {
       </Provider>
     );
 
-    // Assert that the fetchEmails action is called with the expected argument
-    expect(store.dispatch).toHaveBeenCalledWith(
-      fetchEmails("user@example.com")
+    expect(axios.get).toHaveBeenCalledWith(
+      "https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/user@example.com.json"
     );
   });
 
@@ -112,10 +112,54 @@ describe("Inbox Component", () => {
     );
 
     const emailItem = screen.getByText("John Doe");
-    userEvent.click(emailItem);
-
-    // Add your assertion for the action here
+    fireEvent.click(emailItem);
   });
 
-  // Additional test cases for text styles (normal and bolder) can be added here
+  it("Redux state is updated after email deletion", () => {
+    store = mockStore({
+      emails: {
+        emails: [
+          {
+            id: 1,
+            data: {
+              sender: "sender1",
+              subject: "Subject 1",
+              date: "2023-10-01",
+              read: false,
+            },
+          },
+          {
+            id: 2,
+            data: {
+              sender: "sender2",
+              subject: "Subject 2",
+              date: "2023-10-02",
+              read: false,
+            },
+          },
+        ],
+        loading: false,
+        error: null,
+        selectedEmail: null,
+        unreadEmailCount: 2,
+      },
+      authentication: {
+        userId: "user123",
+      },
+    });
+
+    render(
+      <Provider store={store}>
+        <Inbox />
+      </Provider>
+    );
+
+    const deleteButton = screen.getByText("Delete");
+    fireEvent.click(deleteButton);
+
+    const actions = store.getActions();
+    expect(actions).toContainEqual(
+      deleteEmail(1, store.getState().emails.emails)
+    );
+  });
 });

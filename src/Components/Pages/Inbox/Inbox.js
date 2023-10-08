@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import stylesheet from ".//Inbox.module.css";
+import stylesheet from "./Inbox.module.css";
 import {
   setSelectedEmail,
   deleteEmail,
@@ -11,18 +11,18 @@ import {
   markEmailAsReadAction,
   deleteEmailAction,
 } from "../../../Store/email-actions";
-import { ListGroup, Row, Col, Container, Button } from "react-bootstrap";
+import { ListGroup, Row, Col, Container, Button, Form } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import { AiOutlineDelete } from "react-icons/ai";
+
 const Inbox = () => {
   const dispatch = useDispatch();
   const emails = useSelector((state) => state.emails.emails);
   const history = useHistory();
+  const recipientEmail = useSelector((state) => state.authentication.userId);
 
   // State to represent loading state
   const [loading, setLoading] = useState(true); // Initially set to true
-
-  const recipientEmail = useSelector((state) => state.authentication.userId);
 
   useEffect(() => {
     if (!recipientEmail) {
@@ -65,12 +65,22 @@ const Inbox = () => {
     return <p>Loading emails...</p>;
   }
 
+  // Filter emails for the inbox that are sent to the user (recipientEmail)
+  const receivedEmails = emails.filter(
+    (email) => email.data.to === recipientEmail
+  );
+
+  const formatToShortDate = (dateString) => {
+    const options = { day: "2-digit", month: "short" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
   return (
-    <>
-      <Container>
-        <h2>Inbox</h2>
-        <ListGroup>
-          {emails.map((email) => (
+    <Container>
+      <h2>Inbox</h2>
+      <ListGroup>
+        {receivedEmails.map((email) => (
+          <Form.Check aria-label={email.id} type="checkbox" inline>
             <ListGroup.Item
               style={{
                 cursor: "pointer",
@@ -80,19 +90,28 @@ const Inbox = () => {
               onClick={() => handleEmailClick(email)}
             >
               <Row className={stylesheet["emails"]}>
-                <Col style={{ flexGrow: 6 }}>
+                <Col xs={8} sm={9} md={9} lg={10} xl={10}>
                   <Link
                     to={`/email/${email.id}`}
                     className={stylesheet["email"]}
                   >
-                    <Col style={{ marginRight: "20px" }}>
-                      {email.data.sender}
+                    <Col className="d-block d-sm-inline-block">
+                      <span className="d-block d-sm-inline-block">
+                        {email.data.sender}
+                      </span>
                     </Col>
-                    <Col>{email.data.subject}</Col>
-                    <Col>{email.data.date}</Col>
+                    <Col
+                      className={`d-block ${stylesheet["truncate-text"]} d-md-inline-block`}
+                    >
+                      {email.data.subject}
+                    </Col>
+                    <Col className={stylesheet["truncate-text"]}>
+                      {" "}
+                      {formatToShortDate(email.data.date)}
+                    </Col>
                   </Link>
                 </Col>
-                <Col style={{ flexGrow: 0 }}>
+                <Col xs={4} sm={3} md={3} lg={2} xl={2} className="text-right">
                   <Button
                     className={stylesheet["delete-btn"]}
                     onClick={(e) => {
@@ -105,10 +124,10 @@ const Inbox = () => {
                 </Col>
               </Row>
             </ListGroup.Item>
-          ))}
-        </ListGroup>
-      </Container>
-    </>
+          </Form.Check>
+        ))}
+      </ListGroup>
+    </Container>
   );
 };
 

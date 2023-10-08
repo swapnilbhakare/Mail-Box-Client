@@ -21,16 +21,23 @@ export const fetchEmails = (email) => {
 
       const data = response.data;
 
-      // Map the emails to include the read status
-      const emailsWithIds = Object.keys(data).map((emailId) => ({
-        id: emailId,
-        data: { ...data[emailId] },
-      }));
+      // Check if data is defined
+      if (data) {
+        // Map the emails to include the read status
+        const emailsWithIds = Object.keys(data).map((emailId) => ({
+          id: emailId,
+          data: { ...data[emailId] },
+        }));
 
-      // Dispatch the success action with the fetched emails
-      dispatch(emailsLoaded(emailsWithIds));
+        // Dispatch the success action with the fetched emails
+        dispatch(emailsLoaded(emailsWithIds));
 
-      return emailsWithIds;
+        return emailsWithIds;
+      } else {
+        // Handle the case where data is null or undefined
+        console.error("No emails found.");
+        return [];
+      }
     } catch (error) {
       // Dispatch the error action
       dispatch(emailsLoadError(error.message));

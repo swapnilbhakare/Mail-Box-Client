@@ -1,0 +1,36 @@
+.message-detail {
+   
+    width: 90%;
+    min-height: auto;
+
+   
+    z-index: 40;
+    left: 10%;
+    top: 8%;
+    padding: 1rem;
+    border-radius: 5px;
+  
+    border:  none !important;
+  }
+  .header{
+    background-color: transparent !important;
+    border: none !important;
+  }
+  .message-date{
+    font-size: 10px !important;
+    font-weight: normal !important;
+    text-align: center;
+  }
+  
+
+.icon{
+  display: inline-block;
+ /* padding: 10px; */
+ margin: 5px;
+ padding: 5px;
+  font-size: 1.8rem;
+  align-items: center;
+  border: 1px solid #000 ;
+  border-radius: 50%;
+  
+}

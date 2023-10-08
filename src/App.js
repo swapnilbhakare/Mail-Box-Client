@@ -4,9 +4,9 @@ import { useSelector } from "react-redux";
 import "./App.css";
 import Inbox from "./Components/Pages/Inbox/Inbox";
 import Layout from "./Components/Layout/Layout";
-import MessageDetail from "./Components/Pages/Inbox/MessageDetail";
+import MessageDetail from "./Components/Email/MessageDetails/MessageDetail";
 import Authentication from "./Components/Auth/Authentication";
-import Sent from "./Components/Pages/sent/sent";
+import Sent from "./Components/Pages/Sent/Sent";
 function App() {
   const isLoggedIn = useSelector((state) => state.authentication.isLoggedIn);
 
@@ -18,7 +18,7 @@ function App() {
         </Route>
         {isLoggedIn && (
           <>
-            <Route path="/sent">
+            <Route path="/Sent">
               <Layout isLoggedIn={isLoggedIn}>
                 <Sent />
               </Layout>

@@ -79,6 +79,7 @@ const ComposeEmail = (props) => {
       sender: userEmail,
       date: currentDate,
       read: false,
+      timestamp: new Date().toISOString(),
     };
 
     try {

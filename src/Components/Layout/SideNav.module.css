@@ -19,7 +19,7 @@
 }
 
 .nav a.active-link {
-    background-color: tomato; 
+    background-color: rgba(33, 150, 243,0.8); 
     color: white; /* Change the text color for active links */
     border-radius: 5px; /* Add rounded corners to active links */
     padding: 8px 16px; /* Adjust padding for active links */

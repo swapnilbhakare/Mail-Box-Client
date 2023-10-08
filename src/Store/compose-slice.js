@@ -7,6 +7,7 @@ const initialState = {
   subject: "",
   message: "",
   date: "",
+  timestamp: new Date().toISOString(),
 };
 
 const composeSlice = createSlice({

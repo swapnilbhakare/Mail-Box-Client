@@ -2,7 +2,12 @@ import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import stylesheet from "./SideNav.module.css";
 import { Nav, Button } from "react-bootstrap";
-import { BsPencilSquare, BsInboxes, BsFillSendFill } from "react-icons/bs";
+import {
+  BsPencilSquare,
+  BsInboxes,
+  BsFillSendFill,
+  BsTrash,
+} from "react-icons/bs";
 import { useSelector, useDispatch } from "react-redux";
 import { markEmailAsRead } from "../../Store/emails-slice";
 
@@ -25,7 +30,7 @@ const SideNav = ({ compose }) => {
   return (
     <Nav
       className={`${stylesheet.nav}  d-flex justify-content-start col-md-2 sidebar shadow-sm`}
-      style={{ height: "80vh", backgroundColor: "whitesmoke" }}
+      style={{ height: "90vh", backgroundColor: "whitesmoke" }}
       activeKey="/inbox"
     >
       <div className="position-sticky mt-2">
@@ -47,7 +52,7 @@ const SideNav = ({ compose }) => {
             to="/inbox"
             activeClassName={stylesheet["active-link"]} // Apply this class for the active link
           >
-            <BsInboxes />
+            <BsInboxes style={{ marginRight: "20px" }} />
             Inbox
             <span className="badge badge-primary">{unreadEmailCount}</span>
           </Nav.Link>
@@ -60,8 +65,20 @@ const SideNav = ({ compose }) => {
             activeClassName={stylesheet["active-link"]} // Apply this class for the active link
           >
             <span>
-              <BsFillSendFill />
+              <BsFillSendFill style={{ marginRight: "20px" }} />
               Sent
+            </span>
+          </Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link
+            as={NavLink}
+            to="/trash"
+            activeClassName={stylesheet["active-link"]} // Apply this class for the active link
+          >
+            <span>
+              <BsTrash style={{ marginRight: "20px" }} />
+              Trash
             </span>
           </Nav.Link>
         </Nav.Item>

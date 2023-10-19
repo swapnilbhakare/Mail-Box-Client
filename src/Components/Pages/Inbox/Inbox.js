@@ -1,70 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import stylesheet from "./Inbox.module.css";
 import { setSelectedEmail } from "../../../Store/emails-slice";
-import {
-  fetchEmails,
-  markEmailAsReadAction,
-  deleteInboxEmailAction,
-  fetchNewEmails,
-} from "../../../Store/email-actions";
 import { ListGroup, Row, Col, Container, Button, Form } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import { AiOutlineDelete } from "react-icons/ai";
-
+import useEmailOperations from "./useEmailOperations";
 const Inbox = () => {
+  const { markEmailAsRead, deleteEmail } = useEmailOperations(); // Use the custom hook
+
   const dispatch = useDispatch();
   const emails = useSelector((state) => state.emails.emails);
   const history = useHistory();
   const recipientEmail = useSelector((state) => state.authentication.userId);
 
-  // State to represent loading state
-
-  const [loading, setLoading] = useState(true); // Initially set to true
-  useEffect(() => {
-    if (!recipientEmail) {
-      setLoading(false);
-    } else {
-      setLoading(true);
-
-      // Fetch emails when the component mounts
-      dispatch(fetchEmails(recipientEmail))
-        .then(() => {
-          // The async operation has completed successfully
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching emails:", error);
-          setLoading(false);
-        });
-    }
-  }, [dispatch, recipientEmail]);
-
-  useEffect(() => {
-    // Fetch new emails every 2 seconds
-    const intervalId = setInterval(() => {
-      dispatch(fetchNewEmails(recipientEmail));
-    }, 2000);
-
-    // Clean up the interval when the component unmounts
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [dispatch, recipientEmail]);
-
   const handleEmailClick = (email) => {
-    dispatch(markEmailAsReadAction(email.id));
+    markEmailAsRead(email.id);
     dispatch(setSelectedEmail(email));
     const emailSource = "inbox";
     history.push(`/message/${emailSource}/${email.id}`);
   };
 
   const handleDeleteEmail = (email) => {
-    try {
-      dispatch(deleteInboxEmailAction(email.id, email));
-    } catch (error) {
-      console.error("Error deleting email:", error);
-    }
+    deleteEmail(email.id);
   };
 
   useEffect(() => {
@@ -73,8 +31,8 @@ const Inbox = () => {
     };
   }, [dispatch]);
 
-  if (loading || !emails) {
-    return <p>Loading emails...</p>;
+  if (!recipientEmail) {
+    return <p>Please log in to see your emails.</p>;
   }
 
   // Filter emails for the inbox that are sent to the user (recipientEmail)

@@ -5,6 +5,7 @@ import {
   newUpdatedEmails,
   deleteInboxEmail,
   emailsLoadError,
+  deleteSentEmail,
 } from "./emails-slice";
 import {
   collection,
@@ -136,7 +137,31 @@ export const fetchNewEmails = (email) => {
     }
   };
 };
+export const fetchSentNewEmails = (email) => {
+  return async (dispatch) => {
+    try {
+      if (!email) {
+        throw new Error("Email is undefined or empty.");
+      }
 
+      const emailCollection = collection(db, "emails", email, "sent");
+
+      const querySnapshot = await getDocs(emailCollection);
+      const newEmails = [];
+
+      querySnapshot.forEach((doc) => {
+        newEmails.push({
+          id: doc.id,
+          data: doc.data(),
+        });
+      });
+
+      dispatch(newUpdatedEmails(newEmails));
+    } catch (error) {
+      console.error("Error fetching new emails: ", error);
+    }
+  };
+};
 // fetch sent emails
 
 export const fetchSentEmails = (email) => {
@@ -158,6 +183,29 @@ export const fetchSentEmails = (email) => {
       dispatch(emailsLoaded(emailData));
     } catch (error) {
       console.error("Error fetching sent emails:", error);
+    }
+  };
+};
+export const deleteSentEmailAction = (emailId) => {
+  return async (dispatch, getState) => {
+    try {
+      const state = getState();
+      const userEmail = state.authentication.userId;
+      const emailDocument = doc(db, "emails", userEmail, "sent", emailId);
+
+      // Attempt to delete the sent email
+      // Check if the document exists before attempting to delete it
+      const docSnapshot = await getDoc(emailDocument);
+
+      if (docSnapshot.exists()) {
+        // Attempt to delete the sent email
+        await deleteDoc(emailDocument);
+        dispatch(deleteSentEmail(emailId));
+      } else {
+        console.error("Document does not exist in Firestore.");
+      }
+    } catch (error) {
+      console.error("Error deleting sent email: ", error);
     }
   };
 };

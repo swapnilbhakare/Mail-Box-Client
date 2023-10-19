@@ -7,6 +7,7 @@ import Layout from "./Components/Layout/Layout";
 import MessageDetail from "./Components/Email/MessageDetails/MessageDetail";
 import Authentication from "./Components/Auth/Authentication";
 import Sent from "./Components/Pages/Sent/Sent";
+import Trash from "./Components/Pages/Trash/Trash";
 function App() {
   const isLoggedIn = useSelector((state) => state.authentication.isLoggedIn);
 
@@ -26,6 +27,11 @@ function App() {
             <Route path="/inbox">
               <Layout isLoggedIn={isLoggedIn}>
                 <Inbox />
+              </Layout>
+            </Route>
+            <Route path="/trash">
+              <Layout isLoggedIn={isLoggedIn}>
+                <Trash />
               </Layout>
             </Route>
             <Route path="/message/:source/:id">

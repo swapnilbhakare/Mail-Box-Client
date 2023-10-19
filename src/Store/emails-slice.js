@@ -105,15 +105,8 @@ const emailsSlice = createSlice({
       );
     },
     deleteSentEmail: (state, action) => {
-      const emailIdToDelete = action.payload;
-      state.sentEmails = state.sentEmails.filter(
-        (email) => email.id !== emailIdToDelete
-      );
-      state.unreadSentEmailCount = calculateUnreadCount(
-        state.emails,
-        state.senderEmail,
-        "sent"
-      );
+      const emailId = action.payload;
+      state.emails = state.emails.filter((email) => email.id !== emailId);
     },
   },
 });

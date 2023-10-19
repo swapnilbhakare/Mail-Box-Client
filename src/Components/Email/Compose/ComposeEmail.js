@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-
+import useEmail from "./useEmail";
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import {
   setTo,
@@ -18,10 +17,9 @@ import { EditorState, convertFromRaw, convertToRaw } from "draft-js";
 import { Button, Form, Row, Col, Modal, InputGroup } from "react-bootstrap";
 import stylesheet from "./ComposeEmail.module.css";
 import { useDispatch, useSelector } from "react-redux";
-import { addDoc, collection } from "firebase/firestore";
-import { db } from "../../../firebase";
 
 const ComposeEmail = (props) => {
+  const { sendEmail } = useEmail();
   const dispatch = useDispatch();
   const compose = useSelector((state) => state.compose);
   const [showCC, setShowCC] = useState(!!compose.cc);
@@ -90,43 +88,7 @@ const ComposeEmail = (props) => {
       timestamp: new Date().toISOString(),
     };
 
-    const emailId = compose.to;
-    try {
-      // Add the email to the sender's "sent" mailbox collection
-      const senderEmailCollection = collection(db, "emails", userEmail, "sent");
-      await addDoc(senderEmailCollection, emailData);
-
-      // Add a copy of the email to the recipient's mailbox collection
-      if (compose.to === emailId) {
-        const recipientEmailCollection = collection(
-          db,
-          "emails",
-          compose.to,
-          "inbox"
-        );
-        await addDoc(recipientEmailCollection, emailData);
-      }
-      toast.success("Email sent successfully", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-      });
-    } catch (error) {
-      console.error("Error sending email:", error);
-      toast.error("Failed to send email. Please try again later.", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-      });
-    }
+    sendEmail(emailData, userEmail);
     props.setShow(false);
     handleClose();
   };

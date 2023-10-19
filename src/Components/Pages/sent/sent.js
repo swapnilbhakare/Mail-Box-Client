@@ -1,39 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import stylesheet from "./Sent.module.css";
 import { setSelectedEmail } from "../../../Store/emails-slice";
-import { fetchSentEmails } from "../../../Store/email-actions";
 import { ListGroup, Row, Col, Container, Button, Form } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import { AiOutlineDelete } from "react-icons/ai";
-
+import useSentEmailOperations from "./useSentEmailOperations"; // Correct import path
 const Sent = () => {
+  const { deleteSentEmail } = useSentEmailOperations(); // Use the custom hook
   const dispatch = useDispatch();
   const emails = useSelector((state) => state.emails.emails);
   const recipientEmail = useSelector((state) => state.authentication.userId);
   const history = useHistory();
 
   // State to represent loading state
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!recipientEmail) {
-      setLoading(false);
-    } else {
-      setLoading(true);
-
-      // Fetch sent emails
-      dispatch(fetchSentEmails(recipientEmail))
-        .then(() => {
-          // The async operation has completed successfully
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching sent emails:", error);
-          setLoading(false);
-        });
-    }
-  }, [dispatch, recipientEmail]);
 
   const handleEmailClick = (email) => {
     // Construct the correct URL path for MessageDetail
@@ -43,6 +23,8 @@ const Sent = () => {
 
   const handleDeleteEmail = (email) => {
     // Handle the deletion of emails here, if needed
+    console.log(email);
+    deleteSentEmail(email.id);
   };
 
   useEffect(() => {
@@ -51,7 +33,7 @@ const Sent = () => {
     };
   }, [dispatch]);
 
-  if (loading || !emails) {
+  if (!recipientEmail) {
     return <p>Loading emails...</p>;
   }
 

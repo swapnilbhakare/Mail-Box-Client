@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState, useRef } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
@@ -11,28 +11,17 @@ import {
 } from "react-bootstrap";
 import { BiSolidLockAlt } from "react-icons/bi";
 import styleshhet from "./Authentication.module.css";
-import { useHistory } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { login } from "../../Store/auth-slice";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
-
+import useAuthentication from "./useAuthentication"; // Import the custom hook
 const Authentication = () => {
-  const history = useHistory();
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
   const confirmPasswordInputRef = useRef();
   const [isLogin, setIsLogin] = useState(true);
-  const dispatch = useDispatch();
-
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
   };
+  const { loginHandler, signupHandler } = useAuthentication();
 
-  const auth = getAuth();
   const submitHandler = async (event) => {
     event.preventDefault();
     const enteredEmail = emailInputRef.current.value;
@@ -46,44 +35,19 @@ const Authentication = () => {
       return;
     }
 
-    try {
-      if (isLogin) {
-        // Sign in
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          enteredEmail,
-          enteredPassword
-        );
-        const user = userCredential.user;
-        const idToken = await user.getIdToken();
-        console.log(idToken);
-        dispatch(login({ idToken, userId: user.email }));
-        toast.success("User has successfully signed in");
-        history.replace("/inbox");
-      } else {
-        // Sign up
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          enteredEmail,
-          enteredPassword
-        );
+    if (isLogin) {
+      // Sign in
+      loginHandler(enteredEmail, enteredPassword);
+    } else {
+      // Sign up
+      signupHandler(enteredEmail, enteredPassword, enteredConfirmPassword);
+    }
 
-        const user = userCredential.user;
-        const idToken = await user.getIdToken();
-        dispatch(login({ idToken, userId: user.email }));
-        toast.success("User has successfully signed up");
-        history.replace("/inbox");
-      }
-
-      // Clear input fields
-      emailInputRef.current.value = "";
-      passwordInputRef.current.value = "";
-      if (!isLogin) {
-        confirmPasswordInputRef.current.value = "";
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("An error occurred. Please try again later.");
+    // Clear input fields
+    emailInputRef.current.value = "";
+    passwordInputRef.current.value = "";
+    if (!isLogin) {
+      confirmPasswordInputRef.current.value = "";
     }
   };
 

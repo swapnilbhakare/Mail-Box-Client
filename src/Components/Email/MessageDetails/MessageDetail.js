@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { Container, Card } from "react-bootstrap";
 import stylesheet from "./MessageDetails.module.css";
 import MessageTopBar from "../../Layout/MessageTopBar";
@@ -8,9 +8,10 @@ import { markEmailAsRead } from "../../../Store/emails-slice";
 import { CgProfile } from "react-icons/cg";
 const MessageDetail = () => {
   const dispatch = useDispatch();
-  const { id } = useParams();
+  const { id, source } = useParams();
   const emails = useSelector((state) => state.emails.emails);
   const selectedEmail = emails.find((email) => email.id === id);
+  const history = useHistory();
 
   useEffect(() => {
     // Mark the email as read if it exists
@@ -30,10 +31,22 @@ const MessageDetail = () => {
   );
   const daysAgoText = isNaN(daysAgo) ? "Unknown" : `${daysAgo} days ago`;
   const messageContent = selectedEmail.data.message;
+  const handleEmailClick = (email) => {
+    if (source === "inbox") {
+      history.push("/inbox");
+    } else if (source === "sent") {
+      history.push("/sent");
+    } else {
+      // Handle any other conditions or fallback behavior here
+      // In this case, you might want to go to a default route
+      history.push("/default");
+    }
+  };
 
   return (
     <Container>
-      <MessageTopBar />
+      <MessageTopBar goBack={handleEmailClick} />
+
       <Card className={stylesheet["message-detail"]}>
         <Card.Header className={stylesheet.header}>
           <Card.Title className={stylesheet["message-subject"]}>

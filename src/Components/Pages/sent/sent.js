@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import stylesheet from "./Sent.module.css";
-import {
-  setSelectedEmail,
-  deleteEmail,
-  markEmailAsRead,
-} from "../../../Store/emails-slice";
-import {
-  fetchEmails,
-  markEmailAsReadAction,
-  deleteEmailAction,
-} from "../../../Store/email-actions";
+import { setSelectedEmail } from "../../../Store/emails-slice";
+import { fetchSentEmails } from "../../../Store/email-actions";
 import { ListGroup, Row, Col, Container, Button, Form } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import { AiOutlineDelete } from "react-icons/ai";
@@ -30,21 +22,23 @@ const Sent = () => {
     } else {
       setLoading(true);
 
-      // Fetch emails
-      dispatch(fetchEmails(recipientEmail))
+      // Fetch sent emails
+      dispatch(fetchSentEmails(recipientEmail))
         .then(() => {
           // The async operation has completed successfully
           setLoading(false);
         })
         .catch((error) => {
-          console.error("Error fetching emails:", error);
+          console.error("Error fetching sent emails:", error);
           setLoading(false);
         });
     }
   }, [dispatch, recipientEmail]);
 
   const handleEmailClick = (email) => {
-    history.push(`/email/${email.id}`); // Navigate to MessageDetail
+    // Construct the correct URL path for MessageDetail
+    const emailSource = "sent"; // You may need to get the actual source from your email object
+    history.push(`/message/${emailSource}/${email.id}`);
   };
 
   const handleDeleteEmail = (email) => {
@@ -76,12 +70,16 @@ const Sent = () => {
       <h2>Sent</h2>
       <ListGroup>
         {sentEmails.map((email) => (
-          <Form.Check aria-label={email.id} type="checkbox" inline>
+          <Form.Check
+            key={email.id}
+            aria-label={email.id}
+            type="checkbox"
+            inline
+          >
             <ListGroup.Item
               style={{
                 cursor: "pointer",
               }}
-              key={email.id}
               onClick={() => handleEmailClick(email)}
             >
               <Row className={stylesheet["emails"]}>

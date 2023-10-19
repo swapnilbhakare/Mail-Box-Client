@@ -7,13 +7,13 @@ import { MdMoveToInbox } from "react-icons/md";
 import stylesheet from "./MessageTopBar.module.css";
 import { Link } from "react-router-dom";
 
-const MessageTopBar = () => {
+const MessageTopBar = (props) => {
   return (
     <Nav className={`${stylesheet.topbar} sidebar`}>
       <Nav.Item as="div">
-        <Link to="/inbox">
+        <Button variant="none" onClick={props.goBack}>
           <BiArrowBack className={stylesheet.icon} />
-        </Link>
+        </Button>
       </Nav.Item>
       <Nav.Item as="div">
         <Link to="">

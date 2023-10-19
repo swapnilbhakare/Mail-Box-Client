@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import stylesheet from "./Inbox.module.css";
-import {
-  setSelectedEmail,
-  deleteEmail,
-  markEmailAsRead,
-} from "../../../Store/emails-slice";
+import { setSelectedEmail } from "../../../Store/emails-slice";
 import {
   fetchEmails,
   markEmailAsReadAction,
-  deleteEmailAction,
+  deleteInboxEmailAction,
+  fetchNewEmails,
 } from "../../../Store/email-actions";
 import { ListGroup, Row, Col, Container, Button, Form } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
@@ -22,15 +19,15 @@ const Inbox = () => {
   const recipientEmail = useSelector((state) => state.authentication.userId);
 
   // State to represent loading state
-  const [loading, setLoading] = useState(true); // Initially set to true
 
+  const [loading, setLoading] = useState(true); // Initially set to true
   useEffect(() => {
     if (!recipientEmail) {
       setLoading(false);
     } else {
       setLoading(true);
 
-      // Fetch emails
+      // Fetch emails when the component mounts
       dispatch(fetchEmails(recipientEmail))
         .then(() => {
           // The async operation has completed successfully
@@ -43,16 +40,31 @@ const Inbox = () => {
     }
   }, [dispatch, recipientEmail]);
 
+  useEffect(() => {
+    // Fetch new emails every 2 seconds
+    const intervalId = setInterval(() => {
+      dispatch(fetchNewEmails(recipientEmail));
+    }, 2000);
+
+    // Clean up the interval when the component unmounts
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [dispatch, recipientEmail]);
+
   const handleEmailClick = (email) => {
-    dispatch(markEmailAsRead(email));
     dispatch(markEmailAsReadAction(email.id));
     dispatch(setSelectedEmail(email));
-    history.push(`/email/${email.id}`); // Navigate to MessageDetail
+    const emailSource = "inbox";
+    history.push(`/message/${emailSource}/${email.id}`);
   };
 
   const handleDeleteEmail = (email) => {
-    dispatch(deleteEmailAction(email.id, emails));
-    dispatch(deleteEmail(email.id, emails)); // Dispatch the deleteEmail action
+    try {
+      dispatch(deleteInboxEmailAction(email.id, email));
+    } catch (error) {
+      console.error("Error deleting email:", error);
+    }
   };
 
   useEffect(() => {
@@ -71,8 +83,25 @@ const Inbox = () => {
   );
 
   const formatToShortDate = (dateString) => {
-    const options = { day: "2-digit", month: "short" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    const date = new Date(dateString);
+    const day = date.getDate(); // Get the day (1-31)
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const month = monthNames[date.getMonth()]; // Get the month abbreviation
+    const formattedDate = `${day} ${month}`;
+    return formattedDate;
   };
 
   return (
@@ -80,13 +109,17 @@ const Inbox = () => {
       <h2>Inbox</h2>
       <ListGroup>
         {receivedEmails.map((email) => (
-          <Form.Check aria-label={email.id} type="checkbox" inline>
+          <Form.Check
+            aria-label={email.id}
+            key={email.id} // Add this key
+            type="checkbox"
+            inline
+          >
             <ListGroup.Item
               style={{
                 cursor: "pointer",
                 fontWeight: email.data && email.data.read ? "normal" : "bolder",
               }}
-              key={email.id}
               onClick={() => handleEmailClick(email)}
             >
               <Row className={stylesheet["emails"]}>
@@ -97,7 +130,7 @@ const Inbox = () => {
                   >
                     <Col className="d-block d-sm-inline-block">
                       <span className="d-block d-sm-inline-block">
-                        {email.data.sender}
+                        {email.data.to}
                       </span>
                     </Col>
                     <Col

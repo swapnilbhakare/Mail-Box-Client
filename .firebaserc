@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "email-box-client-b11f5",
+    "swap": "email-box-client-2ffae"
+  },
+  "targets": {},
+  "etags": {}
+}

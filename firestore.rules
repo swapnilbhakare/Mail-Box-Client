@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Match all emails documents, assuming the collection structure.
+    match /emails/{recipientEmail}/{folder}/{emailId} {
+      allow read: if request.auth != null; // Allow read access if the user is authenticated.
+ allow read, write: if true;
+      // Allow write access (e.g., mark email as read) and delete access if the user is authenticated.
+      allow write, delete: if request.auth != null &&
+        (resource.data.sender == request.auth.uid || resource.data.to == request.auth.token.email);
+      allow delete: if request.auth.uid != null;
+
+      // Allow creating new emails (e.g., sending emails) if the user is authenticated.
+      allow create: if request.auth != null;
+    }
+  }
+  match /emails/{emailId} {
+      allow read, write: if request.auth.uid == request.resource.data.sender;
+    }
+}

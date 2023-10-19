@@ -1,5 +1,29 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const mergeEmails = (existingEmails, newEmails) => {
+  const mergedEmails = [...existingEmails];
+  newEmails.forEach((newEmail) => {
+    const existingEmailIndex = mergedEmails.findIndex(
+      (email) => email.id === newEmail.id
+    );
+    if (existingEmailIndex !== -1) {
+      mergedEmails[existingEmailIndex] = newEmail;
+    } else {
+      mergedEmails.push(newEmail);
+    }
+  });
+  return mergedEmails;
+};
+
+// Helper function to calculate the unread email count
+const calculateUnreadCount = (emails, recipientEmail, category) => {
+  return emails.filter(
+    (email) =>
+      email.data.to === recipientEmail &&
+      !email.data.read &&
+      email.data.category === category
+  ).length;
+};
 const emailsSlice = createSlice({
   name: "emails",
   initialState: {
@@ -8,6 +32,8 @@ const emailsSlice = createSlice({
     error: null,
     selectedEmail: null,
     unreadEmailCount: 0,
+    inbox: [],
+    sent: [],
   },
 
   reducers: {
@@ -19,12 +45,19 @@ const emailsSlice = createSlice({
       state.error = null;
     },
     emailsLoaded: (state, action) => {
+      const [category, emailData] = action.payload;
+      if (category === "inbox") {
+        state.inbox = emailData;
+      } else if (category === "sent") {
+        state.sent = emailData;
+      }
       state.loading = false;
       state.emails = action.payload;
-      // Recalculate the unread email count based on read status
-      state.unreadEmailCount = state.emails.filter(
-        (email) => !email.data.read
-      ).length;
+      // Recalculate the unread email count based on read status and recipientEmail
+      state.unreadEmailCount = calculateUnreadCount(
+        state.emails,
+        state.recipientEmail
+      );
     },
 
     emailsLoadError: (state, action) => {
@@ -34,6 +67,7 @@ const emailsSlice = createSlice({
 
     markEmailAsRead: (state, action) => {
       const emailIdToMarkAsRead = action.payload;
+
       // Find the email to mark as read by its ID
       const emailToMarkAsRead = state.emails.find(
         (email) => email.id === emailIdToMarkAsRead
@@ -42,16 +76,43 @@ const emailsSlice = createSlice({
       if (emailToMarkAsRead) {
         // Update the read status of the email to true
         emailToMarkAsRead.data.read = true;
+
+        // Update the unread email count for the inbox based on the recipientEmail
+        const recipientEmail = state.recipientEmail;
+        state.unreadEmailCount = calculateUnreadCount(
+          state.emails,
+          recipientEmail,
+          "inbox"
+        );
       }
-      // Recalculate the unread email count
-      state.unreadEmailCount = state.emails.filter(
-        (email) => !email.data.read
-      ).length;
     },
-    deleteEmail: (state, action) => {
+
+    newUpdatedEmails: (state, action) => {
+      const newEmails = action.payload;
+      state.emails = mergeEmails(state.emails, newEmails);
+      state.unreadEmailCount = calculateUnreadCount(state.emails);
+    },
+
+    deleteInboxEmail: (state, action) => {
       const emailIdToDelete = action.payload;
       state.emails = state.emails.filter(
         (email) => email.id !== emailIdToDelete
+      );
+      state.unreadEmailCount = calculateUnreadCount(
+        state.emails,
+        state.recipientEmail,
+        "inbox"
+      );
+    },
+    deleteSentEmail: (state, action) => {
+      const emailIdToDelete = action.payload;
+      state.sentEmails = state.sentEmails.filter(
+        (email) => email.id !== emailIdToDelete
+      );
+      state.unreadSentEmailCount = calculateUnreadCount(
+        state.emails,
+        state.senderEmail,
+        "sent"
       );
     },
   },
@@ -63,7 +124,9 @@ export const {
   emailsLoaded,
   emailsLoadError,
   markEmailAsRead,
-  deleteEmail,
+  deleteInboxEmail,
+  newUpdatedEmails,
+  deleteSentEmail,
 } = emailsSlice.actions;
 
 export default emailsSlice.reducer;

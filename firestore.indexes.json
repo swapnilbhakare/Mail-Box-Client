@@ -1,0 +1,14 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "emails", 
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "sender",
+          "order": "ASCENDING" 
+        }
+      ]
+    }
+  ]
+}

@@ -31,8 +31,14 @@ const composeSlice = createSlice({
     setMessage: (state, action) => {
       state.message = action.payload;
     },
-    resetCompose: (state) => {
-      return initialState;
+    resetCompose: (state, action) => {
+      state.to = "";
+      state.cc = "";
+      state.bcc = "";
+      state.subject = "";
+      state.message = "";
+      state.date = "";
+      return state; // Return the modified state
     },
   },
 });

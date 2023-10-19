@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import axios from "axios";
+
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import {
   setTo,
@@ -18,6 +18,8 @@ import { EditorState, convertFromRaw, convertToRaw } from "draft-js";
 import { Button, Form, Row, Col, Modal, InputGroup } from "react-bootstrap";
 import stylesheet from "./ComposeEmail.module.css";
 import { useDispatch, useSelector } from "react-redux";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "../../../firebase";
 
 const ComposeEmail = (props) => {
   const dispatch = useDispatch();
@@ -52,7 +54,6 @@ const ComposeEmail = (props) => {
       console.error("compose.message is null or undefined");
     }
   }, [compose.message]);
-
   const onEditorStateChange = (newEditorState) => {
     const contentState = newEditorState.getCurrentContent();
     const messageText = convertToRaw(contentState)
@@ -64,45 +65,56 @@ const ComposeEmail = (props) => {
 
   const userEmail = useSelector((state) => state.authentication.userId);
 
-  const emailId = userEmail || "";
-  const senderId = emailId.replace(/[^a-zA-Z0-9]/g, "");
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const currentDate = new Date().toLocaleString();
+
+    const currentDate = new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }).format(new Date());
+    const messageText = convertToRaw(editorState.getCurrentContent());
+
     const emailData = {
       to: compose.to,
       cc: compose.cc,
       bcc: compose.bcc,
       subject: compose.subject,
-      message: compose.message,
+      message: JSON.stringify(messageText),
       sender: userEmail,
       date: currentDate,
       read: false,
       timestamp: new Date().toISOString(),
     };
 
+    const emailId = compose.to;
     try {
-      // Make a POST request to your server with email data
-      const response = await axios.post(
-        `https://mail-box-client-f5058-default-rtdb.firebaseio.com/emails/${senderId}.json`,
-        emailData
-      );
+      // Add the email to the sender's "sent" mailbox collection
+      const senderEmailCollection = collection(db, "emails", userEmail, "sent");
+      await addDoc(senderEmailCollection, emailData);
 
-      if (response.status === 200) {
-        console.log("Email sent successfully");
-        toast.success("Email sent successfully", {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: false,
-          draggable: true,
-          progress: undefined,
-        });
-      } else {
-        throw new Error("Failed to send email.");
+      // Add a copy of the email to the recipient's mailbox collection
+      if (compose.to === emailId) {
+        const recipientEmailCollection = collection(
+          db,
+          "emails",
+          compose.to,
+          "inbox"
+        );
+        await addDoc(recipientEmailCollection, emailData);
       }
+      toast.success("Email sent successfully", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+      });
     } catch (error) {
       console.error("Error sending email:", error);
       toast.error("Failed to send email. Please try again later.", {

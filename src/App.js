@@ -28,7 +28,7 @@ function App() {
                 <Inbox />
               </Layout>
             </Route>
-            <Route path="/email/:id">
+            <Route path="/message/:source/:id">
               <Layout isLoggedIn={isLoggedIn}>
                 <MessageDetail />
               </Layout>

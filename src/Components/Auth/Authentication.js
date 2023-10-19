@@ -14,7 +14,11 @@ import styleshhet from "./Authentication.module.css";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../../Store/auth-slice";
-import axios from "axios"; // Import Axios
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 
 const Authentication = () => {
   const history = useHistory();
@@ -28,6 +32,7 @@ const Authentication = () => {
     setIsLogin((prevState) => !prevState);
   };
 
+  const auth = getAuth();
   const submitHandler = async (event) => {
     event.preventDefault();
     const enteredEmail = emailInputRef.current.value;
@@ -41,55 +46,33 @@ const Authentication = () => {
       return;
     }
 
-    const authData = {
-      email: enteredEmail,
-      password: enteredPassword,
-      returnSecureToken: true,
-    };
-
-    // Define the Firebase API endpoint URLs
-    const signInUrl =
-      "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAEQsJpek_gtmwzG7ZNxTabt8vGQxZ8t8w";
-    const signUpUrl =
-      "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAEQsJpek_gtmwzG7ZNxTabt8vGQxZ8t8w";
-
-    // Use the appropriate URL based on the authentication mode
-    const url = isLogin ? signInUrl : signUpUrl;
-
     try {
-      const response = await axios.post(url, authData);
-
-      if (response.status === 200) {
-        const data = response.data;
-        const idToken = data.idToken;
-        const userId = data.email;
-        dispatch(login({ idToken, userId }));
-
-        toast.success(
-          isLogin
-            ? "User has successfully signed in"
-            : "User has successfully signed up"
+      if (isLogin) {
+        // Sign in
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          enteredEmail,
+          enteredPassword
         );
-
-        // Redirect the user to the desired page
+        const user = userCredential.user;
+        const idToken = await user.getIdToken();
+        console.log(idToken);
+        dispatch(login({ idToken, userId: user.email }));
+        toast.success("User has successfully signed in");
         history.replace("/inbox");
       } else {
-        const errorData = response.data.error;
-        let errorMessage = "Authentication failed.";
+        // Sign up
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          enteredEmail,
+          enteredPassword
+        );
 
-        if (isLogin) {
-          if (errorData.message === "EMAIL_NOT_FOUND") {
-            errorMessage = "User not found.";
-          } else if (errorData.message === "INVALID_PASSWORD") {
-            errorMessage = "Invalid password.";
-          }
-        } else {
-          if (errorData.message === "EMAIL_EXISTS") {
-            errorMessage = "User already exists.";
-          }
-        }
-
-        toast.error(errorMessage);
+        const user = userCredential.user;
+        const idToken = await user.getIdToken();
+        dispatch(login({ idToken, userId: user.email }));
+        toast.success("User has successfully signed up");
+        history.replace("/inbox");
       }
 
       // Clear input fields

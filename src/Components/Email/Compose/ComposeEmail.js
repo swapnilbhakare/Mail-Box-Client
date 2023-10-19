@@ -87,8 +87,8 @@ const ComposeEmail = (props) => {
       read: false,
       timestamp: new Date().toISOString(),
     };
-
-    sendEmail(emailData, userEmail);
+    const reciverEmailId = compose.to;
+    sendEmail(emailData, userEmail, reciverEmailId);
     props.setShow(false);
     handleClose();
   };

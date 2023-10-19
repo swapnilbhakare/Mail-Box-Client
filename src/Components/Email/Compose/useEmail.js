@@ -3,19 +3,21 @@ import { addDoc, collection } from "firebase/firestore";
 import { db } from "../../../firebase";
 
 const useEmail = () => {
-  const sendEmail = async (emailData, userEmail) => {
+  const sendEmail = async (emailData, userEmail, reciverEmailId) => {
     try {
       const senderEmailCollection = collection(db, "emails", userEmail, "sent");
       await addDoc(senderEmailCollection, emailData);
 
       // copy of the email to the recipient's mailbox collection
-      if (emailData.to === userEmail) {
+      if (emailData.to === reciverEmailId) {
         const recipientEmailCollection = collection(
           db,
           "emails",
-          emailData.to,
+          reciverEmailId,
           "inbox"
         );
+        console.log("Recipient Email Collection:", recipientEmailCollection);
+
         await addDoc(recipientEmailCollection, emailData);
       }
       toast.success("Email sent successfully", {

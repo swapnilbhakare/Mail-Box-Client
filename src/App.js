@@ -19,7 +19,7 @@ function App() {
         </Route>
         {isLoggedIn && (
           <>
-            <Route path="/Sent">
+            <Route path="/sent">
               <Layout isLoggedIn={isLoggedIn}>
                 <Sent />
               </Layout>

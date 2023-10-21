@@ -6,7 +6,7 @@ import Inbox from "./Components/Pages/Inbox/Inbox";
 import Layout from "./Components/Layout/Layout";
 import MessageDetail from "./Components/Email/MessageDetails/MessageDetail";
 import Authentication from "./Components/Auth/Authentication";
-import SentEmail from "./Components/Pages/Sent/SentEmail";
+import SentEmail from "./Components/Pages/sent/SentEmail";
 import Trash from "./Components/Pages/Trash/Trash";
 function App() {
   const isLoggedIn = useSelector((state) => state.authentication.isLoggedIn);

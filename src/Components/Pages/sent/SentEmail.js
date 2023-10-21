@@ -6,7 +6,7 @@ import { ListGroup, Row, Col, Container, Button, Form } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import { AiOutlineDelete } from "react-icons/ai";
 import useSentEmailOperations from "./useSentEmailOperations"; // Correct import path
-const Sent = () => {
+const SentEmail = () => {
   const { deleteSentEmail } = useSentEmailOperations(); // Use the custom hook
   const dispatch = useDispatch();
   const emails = useSelector((state) => state.emails.emails);
@@ -106,4 +106,4 @@ const Sent = () => {
   );
 };
 
-export default Sent;
+export default SentEmail;

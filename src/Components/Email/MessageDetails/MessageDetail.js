@@ -6,6 +6,8 @@ import stylesheet from "./MessageDetails.module.css";
 import MessageTopBar from "../../Layout/MessageTopBar";
 import { markEmailAsRead } from "../../../Store/emails-slice";
 import { CgProfile } from "react-icons/cg";
+import { Editor, EditorState, convertFromRaw } from "draft-js";
+
 const MessageDetail = () => {
   const dispatch = useDispatch();
   const { id, source } = useParams();
@@ -42,6 +44,23 @@ const MessageDetail = () => {
       history.push("/default");
     }
   };
+  const renderMessageContent = (messageContent) => {
+    try {
+      const content = JSON.parse(messageContent);
+      const contentState = convertFromRaw(content);
+      const editorState = EditorState.createWithContent(contentState);
+
+      return (
+        <Editor
+          editorState={editorState}
+          readOnly={true} // Make the content read-only
+        />
+      );
+    } catch (error) {
+      console.error("Error parsing message content:", error);
+      return <p>Error displaying message content.</p>;
+    }
+  };
 
   return (
     <Container>
@@ -64,7 +83,7 @@ const MessageDetail = () => {
         </Card.Header>
         <Card.Body>
           <Card.Text className={stylesheet["message-content"]}>
-            {messageContent}
+            {renderMessageContent(messageContent)}
           </Card.Text>
         </Card.Body>
       </Card>

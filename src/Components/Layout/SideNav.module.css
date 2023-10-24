@@ -4,6 +4,12 @@
     justify-content: space-between;
     padding: 15px 20px !important;
     cursor: pointer;
+    margin: 5px 0;
+
+}
+.nav{
+    width: 150px !important;
+  
 
 }
 .nav a{

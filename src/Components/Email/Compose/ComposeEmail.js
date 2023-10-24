@@ -48,6 +48,8 @@ const ComposeEmail = (props) => {
         console.error("Invalid JSON:", compose.message);
       }
     } else {
+      const emptyEditorState = EditorState.createEmpty();
+      setEditorState(emptyEditorState);
       // Handle the case when compose.message is null or undefined
       console.error("compose.message is null or undefined");
     }
@@ -187,6 +189,7 @@ const ComposeEmail = (props) => {
             <Form.Group>
               <Editor
                 editorState={editorState}
+                value={compose.message}
                 toolbarClassName={stylesheet["editor-toolbar"]} // Apply custom toolbar styles
                 wrapperClassName={stylesheet["wrapper-class"]} // Add your wrapper class here
                 editorClassName={stylesheet["editor-class"]}

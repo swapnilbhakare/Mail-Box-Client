@@ -72,7 +72,8 @@ const SentEmail = () => {
                   >
                     <Col className="d-block d-sm-inline-block">
                       <span className="d-block d-sm-inline-block">
-                        {email.data.to} {/* Display recipient email address */}
+                        to: {email.data.to}{" "}
+                        {/* Display recipient email address */}
                       </span>
                     </Col>
                     <Col

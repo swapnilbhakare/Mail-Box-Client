@@ -76,8 +76,6 @@ const emailsSlice = createSlice({
       if (emailToMarkAsRead) {
         // Update the read status of the email to true
         emailToMarkAsRead.data.read = true;
-
-        // Update the unread email count for the inbox based on the recipientEmail
         const recipientEmail = state.recipientEmail;
         state.unreadEmailCount = calculateUnreadCount(
           state.emails,

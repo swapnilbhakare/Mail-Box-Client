@@ -4,15 +4,15 @@
     ".write": "auth != null",
     "emails": {
       "$recipientEmail": {
-        ".validate": "newData.child('sender').val() === auth.token.email || newData.child('to').val() === auth.token.email",
+        ".validate": "newData.child('sender').val() === auth.uid || newData.child('to').val() === auth.uid",
         "$emailId": {
-          ".validate": "newData.child('sender').val() === auth.token.email"
+          ".validate": "newData.child('sender').val() === auth.uid"
         }
       },
       "sent": {
-        ".validate": "newData.child('sender').val() === auth.token.email",
+        ".validate": "newData.child('sender').val() === auth.uid",
         "$emailId": {
-          ".validate": "newData.child('sender').val() === auth.token.email"
+          ".validate": "newData.child('sender').val() === auth.uid"
         }
       }
     }

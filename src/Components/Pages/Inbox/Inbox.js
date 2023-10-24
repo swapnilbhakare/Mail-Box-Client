@@ -61,6 +61,9 @@ const Inbox = () => {
     const formattedDate = `${day} ${month}`;
     return formattedDate;
   };
+  receivedEmails.map((mail) => {
+    console.log(mail);
+  });
 
   return (
     <Container>
@@ -88,7 +91,7 @@ const Inbox = () => {
                   >
                     <Col className="d-block d-sm-inline-block">
                       <span className="d-block d-sm-inline-block">
-                        {email.data.to}
+                        {email.data.sender}
                       </span>
                     </Col>
                     <Col
